@@ -6,7 +6,11 @@ const BulletInput = props => (
   <div className="bulletinput">
     <div className="bullet" style={{ backgroundColor: props.bulletColor }} />
     <div className="bulletinputwrapper">
-      <Input {...props} />
+      <Input
+        {...props}
+        size="large"
+        style={{ backgroundColor: '#E5E5EA', border: 'none', borderRadius: 8 }}
+      />
     </div>
   </div>
 );

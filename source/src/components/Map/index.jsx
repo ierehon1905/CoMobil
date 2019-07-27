@@ -1,27 +1,22 @@
 import React, { Component } from 'react';
 import './styles.css';
 
-
-
-
-
 export default class Map extends React.PureComponent {
-
   componentDidMount() {
     this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-core.js');
     this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-service.js');
-    this._makeScript("https://js.api.here.com/v3/3.1/mapsjs-mapevents.js");
-    this._makeScript("https://js.api.here.com/v3/3.1/mapsjs-ui.js");
+    this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-mapevents.js');
+    this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-ui.js');
   }
 
   state = {
     depPoint: null,
     arrPoint: null,
-    route: null
-  }
+    route: null,
+  };
 
   componentDidUpdate(prevProps, prevState) {
-    if(this.state.depPoint && this.state.arrPoint && !this.state.route) {
+    if (this.state.depPoint && this.state.arrPoint && !this.state.route) {
       this._calculateRouteFromAtoB(this._platform);
     }
   }
@@ -35,170 +30,152 @@ export default class Map extends React.PureComponent {
     );
   }
 
-
   _onScriptLoad = () => {
+    const { H } = window;
 
-    const {H} = window;
-
-    if(!H || !H.service || !H.mapevents || !H.ui) {
+    if (!H || !H.service || !H.mapevents || !H.ui) {
       return;
     }
 
-    this._platform = new window.H.service.Platform({ //eslint-disable-line
+    this._platform = new window.H.service.Platform({
+      //eslint-disable-line
       apikey: 'jTH-kh64YxepgAEN1-Xkapps-x2FiJwY7EeJTtmD0Fw',
     });
 
-
-    if ("geolocation" in {}) {
-
+    if ('geolocation' in {}) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log(position)
-          const {latitude: lat, longitude: lng} = position.coords;
-          this._initMap(H, this._platform, {lat, lng});
-
-        }, 
-        (e) => console.log(e)
+        position => {
+          console.log(position);
+          const { latitude: lat, longitude: lng } = position.coords;
+          this._initMap(H, this._platform, { lat, lng });
+        },
+        e => console.log(e),
       );
-
     } else {
-      this._initMap(H, this._platform, {lat: 50, lng: 50});
+      this._initMap(H, this._platform, { lat: 50, lng: 50 });
     }
-  }
+  };
 
-  _onMapClick = (evt) => {
+  _onMapClick = evt => {
     const coord = this._map.screenToGeo(evt.clientX, evt.clientY);
 
-
-    if(!this.state.depPoint) {
-      this.setState({depPoint: coord})
+    if (!this.state.depPoint) {
+      this.setState({ depPoint: coord });
       const marker = new window.H.map.Marker(coord);
       this._map.addObject(marker);
-
-    } else if(!this.state.arrPoint) {
-      this.setState({arrPoint: coord})
+    } else if (!this.state.arrPoint) {
+      this.setState({ arrPoint: coord });
       const marker = new window.H.map.Marker(coord);
       this._map.addObject(marker);
     }
+  };
 
-  
-  }
-
-  _onRouteSuccess = (result) => {
-
-    this.setState({route: result});
+  _onRouteSuccess = result => {
+    this.setState({ route: result });
 
     var route = result.response.route[0];
 
     this._addRouteShapeToMap(route);
     this._addManueversToMap(route);
-  }
+  };
 
-  _onRouteError = (e) => {
-    alert('Бл')
-  }
+  _onRouteError = e => {
+    alert('Бл');
+  };
 
   _initMap = (H, platform, center) => {
     try {
-    const defaultLayers = platform.createDefaultLayers();
+      const defaultLayers = platform.createDefaultLayers();
 
+      this._map = new window.H.Map( // eslint-disable-line
+        document.getElementById('mapContainer'), // eslint-disable-line
+        defaultLayers.vector.normal.map,
+        {
+          center: center,
+          zoom: 15,
+          pixelRatio: window.devicePixelRatio || 1,
+        },
+      );
 
-    this._map = new window.H.Map( // eslint-disable-line
-      document.getElementById('mapContainer'), // eslint-disable-line
-      defaultLayers.vector.normal.map,
-      {
-        center: center,
-        zoom: 15,
-        pixelRatio: window.devicePixelRatio || 1
-      },
-    );
+      this._behavior = new window.H.mapevents.Behavior(new window.H.mapevents.MapEvents(this._map));
 
-
-    this._behavior = new window.H.mapevents.Behavior(new window.H.mapevents.MapEvents(this._map));
-
-    this._ui = H.ui.UI.createDefault(this._map, defaultLayers);
-
-
-    } catch(e) {
-      console.log(e)
+      this._ui = H.ui.UI.createDefault(this._map, defaultLayers);
+    } catch (e) {
+      console.log(e);
     }
-  }
+  };
 
-
-  _makeScript = (src) => {
+  _makeScript = src => {
     const script1 = document.createElement('script');
-  
-      script1.src = src;
-      script1.async = false;
-      script1.onload = this._onScriptLoad;
-  
-      document.body.appendChild(script1);
-  }
 
-  _calculateRouteFromAtoB (platform) {
+    script1.src = src;
+    script1.async = false;
+    script1.onload = this._onScriptLoad;
 
+    document.body.appendChild(script1);
+  };
+
+  _calculateRouteFromAtoB(platform) {
     var router = platform.getRoutingService(),
       routeRequestParams = {
         mode: 'fastest;car',
         representation: 'display',
-        routeattributes : 'waypoints,summary,shape,legs',
+        routeattributes: 'waypoints,summary,shape,legs',
         maneuverattributes: 'direction,action',
         waypoint0: Object.values(this.state.depPoint).join(','), // Brandenburg Gate
-        waypoint1: Object.values(this.state.arrPoint).join(',')  // Friedrichstraße Railway Station
+        waypoint1: Object.values(this.state.arrPoint).join(','), // Friedrichstraße Railway Station
       };
-  
-  
-    router.calculateRoute(
-      routeRequestParams,
-      this._onRouteSuccess,
-      this._onRouteError,
-    );
+
+    router.calculateRoute(routeRequestParams, this._onRouteSuccess, this._onRouteError);
   }
 
-  _addRouteShapeToMap(route){
+  _addRouteShapeToMap(route) {
     var lineString = new window.H.geo.LineString(),
       routeShape = route.shape,
       polyline;
-  
+
     routeShape.forEach(function(point) {
       var parts = point.split(',');
       lineString.pushLatLngAlt(parts[0], parts[1]);
     });
-  
+
     polyline = new window.H.map.Polyline(lineString, {
       style: {
         lineWidth: 4,
-        strokeColor: 'rgba(0, 128, 255, 0.7)'
-      }
+        strokeColor: 'rgba(0, 128, 255, 0.7)',
+      },
     });
     // Add the polyline to the map
     this._map.addObject(polyline);
     // And zoom to its bounding rectangle
     this._map.getViewModel().setLookAtData({
-      bounds: polyline.getBoundingBox()
+      bounds: polyline.getBoundingBox(),
     });
   }
 
-  _addManueversToMap = (route) => {
+  _addManueversToMap = route => {
     var svgMarkup = '',
-      dotIcon = new window.H.map.Icon(svgMarkup, {anchor: {x:8, y:8}}),
+      dotIcon = new window.H.map.Icon(svgMarkup, { anchor: { x: 8, y: 8 } }),
       group = new window.H.map.Group(),
       i,
       j;
-  
+
     // Add a marker for each maneuver
-    for (i = 0;  i < route.leg.length; i += 1) {
-      for (j = 0;  j < route.leg[i].maneuver.length; j += 1) {
+    for (i = 0; i < route.leg.length; i += 1) {
+      for (j = 0; j < route.leg[i].maneuver.length; j += 1) {
         // Get the next maneuver.
         this._maneuver = route.leg[i].maneuver[j];
         // Add a marker to the maneuvers group
-        var marker =  new window.H.map.Marker({
-          lat: this._maneuver.position.latitude,
-          lng: this._maneuver.position.longitude} ,
-          {icon: dotIcon});
+        var marker = new window.H.map.Marker(
+          {
+            lat: this._maneuver.position.latitude,
+            lng: this._maneuver.position.longitude,
+          },
+          { icon: dotIcon },
+        );
         marker.instruction = this._maneuver.instruction;
         group.addObject(marker);
       }
     }
-  }
+  };
 }

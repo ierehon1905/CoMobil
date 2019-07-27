@@ -4,13 +4,17 @@ import {
 } from 'antd';
 import BottomBar from '../../components/BottomBar';
 import PinPoint from '../../components/PinPoint';
+import Map from '../../components/Map';
 import './style.css';
 
 const { Title } = Typography;
 
 const Kek = () => (
   <>
-    <Row>
+    <Row style={{
+      position: 'absolute', zIndex: 2, left: 0, right: 0, top: 0,
+    }}
+    >
       <Col span={6}>
         <Icon type="bars" />
       </Col>
@@ -31,7 +35,8 @@ const Kek = () => (
         right: 0,
       }}
     >
-      <PinPoint />
+      <Map />
+      {/* <PinPoint /> */}
     </div>
     <BottomBar />
   </>
