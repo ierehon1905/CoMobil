@@ -4,11 +4,10 @@ import {
   Input, Button, Icon, Typography, Row, Col,
 } from 'antd';
 
-
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import Map from './components/Map';
-
+import './App.css';
 
 const Kek = () => (
   <React.Fragment>
