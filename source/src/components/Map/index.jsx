@@ -114,6 +114,11 @@ export default class Map extends React.PureComponent {
 
     document.body.appendChild(script1);
   };
+  _geoCoder = searchText => {
+    const geocoder = this._platform.getGeocodingService();
+
+    geocoder.geocode({ searchText }, r => console.log(r), e => console.log(e));
+  };
 
   _calculateRouteFromAtoB(platform) {
     var router = platform.getRoutingService(),
