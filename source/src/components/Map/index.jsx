@@ -9,11 +9,14 @@ export default class Map extends React.PureComponent {
     this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-ui.js');
   }
 
-  state = {
-    depPoint: null,
-    arrPoint: null,
-    route: null,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      depPoint: null,
+      arrPoint: null,
+      route: null,
+    };
+  }
 
   componentDidUpdate(prevProps, prevState) {
     if (this.state.depPoint && this.state.arrPoint && !this.state.route) {
@@ -25,14 +28,12 @@ export default class Map extends React.PureComponent {
     return (
       <div className={'container'} onClick={this._onMapClick}>
         <div className="map" id="mapContainer" />
-        kek
       </div>
     );
   }
 
   _onScriptLoad = () => {
     const { H } = window;
-
     if (!H || !H.service || !H.mapevents || !H.ui) {
       return;
     }
@@ -70,6 +71,20 @@ export default class Map extends React.PureComponent {
     }
   };
 
+  setDepPoint = coords => {
+    this.setState({ depPoint: coords });
+  };
+
+  setArrPoint = coords => {
+    this.setState({ depPoint: coords });
+  };
+
+  setPoint = ({ type, coords }) => {
+    if (type == 'arrPoint') this.setArrPoint(coords);
+    else if (type == 'depPoint') this.setDepPoint(coords);
+    else throw new Error('SOSI');
+  };
+
   _onRouteSuccess = result => {
     this.setState({ route: result });
 
@@ -87,6 +102,9 @@ export default class Map extends React.PureComponent {
     try {
       const defaultLayers = platform.createDefaultLayers();
 
+      const geocoder = this._platform.getGeocodingService();
+      this.props.onGeocoderReady(geocoder);
+
       this._map = new window.H.Map( // eslint-disable-line
         document.getElementById('mapContainer'), // eslint-disable-line
         defaultLayers.vector.normal.map,
@@ -96,6 +114,10 @@ export default class Map extends React.PureComponent {
           pixelRatio: window.devicePixelRatio || 1,
         },
       );
+      this.props.onMapReady(this._map);
+      // console.log(this.props);
+      
+      // this.props.onSetPointReady(this.setPoint)
 
       this._behavior = new window.H.mapevents.Behavior(new window.H.mapevents.MapEvents(this._map));
 
@@ -114,6 +136,7 @@ export default class Map extends React.PureComponent {
 
     document.body.appendChild(script1);
   };
+
   _geoCoder = searchText => {
     const geocoder = this._platform.getGeocodingService();
 
