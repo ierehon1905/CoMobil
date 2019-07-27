@@ -1,0 +1,16 @@
+.bottombar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-bottom: 20px;
+}
+
+.bottombarinputwrapper {
+  padding: 12px 16px
+}
+
+.ant-switch-checked {
+  background-color: rgb(239, 121, 48);
+}
+
