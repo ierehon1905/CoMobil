@@ -135,6 +135,7 @@ export default class Map extends React.PureComponent {
   }
 
   _geoCoder = (searchText) => {
+
     const geocoder = this._platform.getGeocodingService();
 
     geocoder
