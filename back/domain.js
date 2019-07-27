@@ -25,12 +25,14 @@ class User {
 class RoomMember {
     constructor({
         user,
+        slot,
         route,
     }) {
         Object.assign(this, {
             user: new User(user),
             waypoints: route,
             voted: false,
+            slot: slot,
         });
     }
 
@@ -45,7 +47,6 @@ class RoomMember {
             });
     }
 }
-
 
 const orderStates = {
     find: 'find',
@@ -96,6 +97,10 @@ class Order {
 
     get totalFee() {
         return this.route.summary.travelTime * (this.members.length > 1 ? 1.1 : 1);
+    }
+
+    get hasFreeSlot() {
+        return this.members.length < 3;
     }
 
     setState(state) {
@@ -184,7 +189,7 @@ class RouteSummary {
     }
 }
 
-async function findRelevantOrder(DB, waypoints) {
+async function findRelevantOrder(DB, {route: waypoints, slot}) {
 
     if(DB.orders.length === 0) {
         return null;
@@ -198,7 +203,7 @@ async function findRelevantOrder(DB, waypoints) {
 
     const nearestCluster = _.sortBy(clusters, 'travelTime')[0];
 
-    if(!nearestCluster) {
+    if(!nearestCluster || !nearestCluster.order.hasFreeSlot) {
         return null;
     }
 

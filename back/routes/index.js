@@ -46,14 +46,15 @@ router.post('/me', (req, res, next) => {
 });
 
 router.post('/order', async (req, res, next) => {
-    const {user, route} = req.body;
+    const {user, route, slot} = req.body;
 
     const roomMember = await RoomMember.create({
       user,
+      slot,
       route,
     });
 
-    const relevantOrder = await findRelevantOrder(DB, route);
+    const relevantOrder = await findRelevantOrder(DB, roomMember);
 
 
     if (!relevantOrder) {
