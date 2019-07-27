@@ -4,7 +4,7 @@ import './style.css';
 
 const BulletInput = props => (
   <div className="bulletinput">
-    <div className="bullet" />
+    <div className="bullet" style={{ backgroundColor: props.bulletColor }} />
     <div className="bulletinputwrapper">
       <Input {...props} />
     </div>
