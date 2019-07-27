@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 class User {
     constructor({
         login,
@@ -17,17 +19,10 @@ class RoomMember {
     constructor({
         user,
         route,
-        status,
-        distance,
-        time,
-        fee,
     }) {
         Object.assign(this, {
-            user,
+            user: new User(user),
             route,
-            distance,
-            time,
-            fee,
         })
     }
 }
@@ -36,17 +31,43 @@ class Order {
     constructor({}) {
         Object.assign(this, {
            members: [],
-           route: null
+           route: null,
         })
     }
 
-    _addMember(user)  {
+    addMember(user)  {
         this.members.push(user);
+        this.route = this.optimizeRoute();
+    }
+
+    optimizeRoute() {
+        return this.members[0].route;
+    }
+}
+
+function findRelevantOrder(DB, route) {
+    const clusters =  DB.orders
+        .map(order => calculateClusterDistance(order, route));
+
+    const nearestCluster = _.sortBy(clusters, 'distance')[0];
+
+    if(!nearestCluster) {
+        return null;
+    }
+
+    return nearestCluster.order;
+};
+
+function calculateClusterDistance(order, route) {
+    return {
+        order,
+        distance: 0
     }
 }
 
 module.exports = {
     User,
     RoomMember,
-    Order
+    Order,
+    findRelevantOrder
 }

@@ -4,6 +4,7 @@ const {
   User,
   RoomMember,
   Order
+  findRelevantOrder,
 } = require('../domain');
 
 let DB;
