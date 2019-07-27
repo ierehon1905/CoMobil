@@ -3,8 +3,6 @@ import './styles.css';
 
 
 
-
-
 export default class Map extends React.PureComponent {
 
   componentDidMount() {
@@ -81,6 +79,7 @@ export default class Map extends React.PureComponent {
       this._map.addObject(marker);
     }
 
+    this._geoCoder('Проспект 60 летия октября 11')
   
   }
 
@@ -133,6 +132,16 @@ export default class Map extends React.PureComponent {
       script1.onload = this._onScriptLoad;
   
       document.body.appendChild(script1);
+  }
+
+  _geoCoder = (searchText) => {
+    const geocoder = this._platform.getGeocodingService();
+
+    geocoder
+      .geocode({searchText}, 
+      (r) => console.log(r), 
+      (e) => console.log(e));
+
   }
 
   _calculateRouteFromAtoB (platform) {
