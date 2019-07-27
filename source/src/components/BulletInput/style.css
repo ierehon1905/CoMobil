@@ -1,0 +1,26 @@
+.bulletinput {
+  /* display: inline-block; */
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: 20px;
+  position: relative;
+}
+
+div.bullet {
+  width: 14px;
+  height: 14px;
+  border-radius: 8px;
+  background-color: #d8d8d8;
+  position: absolute;
+  display: inline-block;
+  /* content: ""; */
+  left: 0;
+  top: 7px;
+}
+
+/* .bulletinputwrapper {
+  display: inline-block;
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: 20px;
+} */
