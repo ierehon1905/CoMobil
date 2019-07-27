@@ -5,36 +5,25 @@ import './styles.css';
 let platform;
 
 
+
 export default class Map extends React.PureComponent {
+
   componentDidMount() {
-    const script1 = document.createElement('script');
-
-    script1.src = 'https://js.api.here.com/v3/3.1/mapsjs-core.js';
-    script1.async = false;
-    script1.onload = this._onScriptLoad;
-
-    document.body.appendChild(script1);
-
-    const script2 = document.createElement('script');
-
-    script2.src = 'https://js.api.here.com/v3/3.1/mapsjs-service.js';
-    script2.async = false;
-    script2.onload = this._onScriptLoad;
-    document.body.appendChild(script2);
+    this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-core.js');
+    this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-service.js');
+    this._makeScript("https://js.api.here.com/v3/3.1/mapsjs-mapevents.js");
+    this._makeScript("https://js.api.here.com/v3/3.1/mapsjs-ui.js");
   }
 
-  _defineLocation = () => {
-    
-  }
-
+  
 
   _onScriptLoad = () => {
+    console.log('asddqd')
+
     const {H} = window;
+    console.log(H)
 
-    console.log(H);
-    console.log(H && H.service);
-
-    if(!H || !H.service) {
+    if(!H || !H.service || !H.mapevents) {
       return;
     }
 
@@ -42,45 +31,15 @@ export default class Map extends React.PureComponent {
       apikey: 'jTH-kh64YxepgAEN1-Xkapps-x2FiJwY7EeJTtmD0Fw',
     });
 
-    const defaultLayers = platform.createDefaultLayers();
-
-
     if ("geolocation" in navigator) {
 
       navigator.geolocation.getCurrentPosition((position) => {
         const {latitude: lat, longitude: lng} = position.coords;
-
-        console.log('kekeke')
-
-        console.log(lat, lng);
-
-         this._map = new H.Map( // eslint-disable-line
-          document.getElementById('mapContainer'), // eslint-disable-line
-          defaultLayers.vector.normal.map,
-          {
-            center: {lat, lng},
-            zoom: 15,
-            pixelRatio: window.devicePixelRatio || 1
-          },
-        );
+        this._initMap(H, platform, {lat, lng});
          // Instantiate (and display) a map object:
-        
       });
     } else {
-      const defaultCoords = {
-        lat: 52.5,
-        long: 13.4,
-      };
-
-      this._map = new H.Map( // eslint-disable-line
-
-        document.getElementById('mapContainer'), // eslint-disable-line
-        defaultLayers.vector.normal.map,
-        {
-          zoom: 15,
-          center: defaultCoords
-        },
-      );
+      this._initMap(H, platform, {lat: 50, lng: 50});
     }
   }
 
@@ -91,5 +50,34 @@ export default class Map extends React.PureComponent {
         kek
       </div>
     );
+  }
+
+  _initMap = (H, platform, center) => {
+
+    const defaultLayers = platform.createDefaultLayers();
+
+    this._map = new H.Map( // eslint-disable-line
+      document.getElementById('mapContainer'), // eslint-disable-line
+      defaultLayers.vector.normal.map,
+      {
+        center: center,
+        zoom: 15,
+        pixelRatio: window.devicePixelRatio || 1
+      },
+    );
+
+    this._behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(this._map));
+
+    this._ui = H.ui.UI.createDefault(this._map, defaultLayers);
+  }
+
+  _makeScript = (src) => {
+    const script1 = document.createElement('script');
+  
+      script1.src = src;
+      script1.async = false;
+      script1.onload = this._onScriptLoad;
+  
+      document.body.appendChild(script1);
   }
 }
