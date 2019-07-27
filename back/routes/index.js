@@ -48,35 +48,73 @@ router.post('/me', (req, res, next) => {
 router.post('/order', async (req, res, next) => {
     const {user, route} = req.body;
 
-
     const roomMember = await RoomMember.create({
       user,
       route,
     });
 
-    const relevantOrder = findRelevantOrder(DB, route);
+    const relevantOrder = await findRelevantOrder(DB, route);
+
 
     if (!relevantOrder) {
       const newOrder = new Order();
-      newOrder.addMember(roomMember);
+      await newOrder.addMember(roomMember);
       DB.orders.push(newOrder);
 
       return res.send({order: newOrder});
 
+    } else if (relevantOrder.state === 'drive') {
+      await relevantOrder.addCandidate(roomMember);
+
     } else {
-      relevantOrder.addMember(roomMember);
+      await relevantOrder.addMember(roomMember);
 
       return res.send({order: relevantOrder});
     }
 });
 
-router.post('/order/:orderId/status', (req, res, next) => {
-  const {orderId} = req.params;
+router.post('/order/vote/', async (req, res, next) => {
+  const {orderId, userId} = req.body;
+
+  const order = DB.orders.find(o => o.id === orderId);
+
+  if(!order) {
+    return res.status(404).send();
+  }
+
+  order.vote(userId);
+  await order.addCandidateToMembers();
+
+  return res.send()
+})
+
+router.post('/order/status', (req, res, next) => {
+  const {orderId} = req.body;
   
   const order = DB.orders.find(o => o.id === orderId);
 
+  if(!order) {
+    return res.status(404).send();
+  }
+
   return res.send({order})
 });
+
+
+router.post('/order/setState', (req, res, next) => {
+  const {state, orderId} = req.body;
+  
+  const order = DB.orders.find(o => o.id === orderId);
+
+  if(!order) {
+    return res.status(404).send();
+  }
+
+  order.setState(state);
+
+  return res.send({order});
+});
+
 
 resetDB();
 

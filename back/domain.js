@@ -1,5 +1,7 @@
 const _ = require('lodash');
 const got = require('got');
+const polygonCentroid = require("@quentinroy/polygon-centroid");
+const nanoid = require('nanoid');
 
 const APP_ID = "4CZgSXCcjMAuJyocBpD4";
 const APP_CODE = "mwdDoGQLxIxxJqVRjxpg4A";
@@ -9,6 +11,7 @@ class User {
         login,
     }) {
         Object.assign(this, {
+            id: nanoid(),
             login,
             isUsed: false,
         })
@@ -26,16 +29,16 @@ class RoomMember {
     }) {
         Object.assign(this, {
             user: new User(user),
+            waypoints: route,
+            voted: false,
         });
-
-      
     }
 
    static create(params) {
        const {route} = params;
         const result = new RoomMember(params);
 
-        return  getRouteByPoints({depPoint: route.depPoint, arrPoint: route.arrPoint})
+        return  getRouteByPoints([route.depPoint, route.arrPoint])
             .then(routeDetails => {
                 result.route = routeDetails;
                 return result;
@@ -44,67 +47,130 @@ class RoomMember {
 }
 
 
+const orderStates = {
+    find: 'find',
+    wait: 'wait',
+    pickup: 'pickup',
+    drive: 'drive',
+    cpmplete: 'complete',
+}
+
 class Order {
     constructor() {
         Object.assign(this, {
+          id: nanoid(),
            members: [],
            route: null,
+           state: 'find',
+           position: null,
+           timeToPickup: null,
+           candidates: [],
         })
+
+        // Находим тачку через 5 сек
+        setTimeout(() => {
+            this.setState(orderStates.wait);
+        }, 5000)
     }
 
-    addMember(user)  {
+    toJSON() {
+
+        const members = this.members.map(m => {
+            const {travelTime} = m.route.summary;
+            const weight = (this.totalFee - travelTime) / this.totalFee;
+            const fee = this.totalFee / this.members.length;
+
+            return Object.assign({}, m, {
+                fee,
+                oldFee: travelTime,
+                discount: 1 - fee / travelTime,
+            });
+        });
+
+        return {
+            ...this,
+            totalFee: this.totalFee,
+            members,
+        }
+    }
+
+    get totalFee() {
+        return this.route.summary.travelTime * (this.members.length > 1 ? 1.1 : 1);
+    }
+
+    setState(state) {
+        switch(state) {
+            case orderStates.drive: {
+                this.position = this.route.waypoint[0].originalPosition;
+                break;
+            }
+            case orderStates.wait: {
+                this.timeToPickup = '5 минут';
+            }
+            default:
+                break;
+        }
+
+        this.state = state;
+    }
+
+    addCandidate(user) {
+        this.candidates.push(user);
+    }
+
+    vote(userId) {
+        (this.members.find(m => m.user.id) || {}).voted = true; 
+    }
+
+    async addCandidateToMembers() {
+        const isAvail = _.all(this.members.map(m => m.user.voted));
+
+        if (!isAvail) {
+            return;
+        }
+
+        this.members.forEach(m => m.voted = false);
+
+        const candidate = this.candidates.pop();
+
+        if (candidate) {
+            await this.addMember(candidate);
+        }
+    }
+
+    async addMember(user)  {
         this.members.push(user);
-        this.route = this.optimizeRoute();
+        this.route = await this.optimizeWholeRoute();
     }
 
-    optimizeRoute() {
-        return this.members[0].route;
-    }
-}
+    async getPickupRoute(route) {
+        const {depPoint: extraDepPoint} = route;
 
-function findRelevantOrder(DB, route) {
-    const clusters =  DB.orders
-        .map(order => calculateClusterDistance(order, route));
+        const depPoints = this.members.map(m => m.waypoints.depPoint);
 
-    const nearestCluster = _.sortBy(clusters, 'distance')[0];
-
-    if(!nearestCluster) {
-        return null;
-    }
-
-    return nearestCluster.order;
-};
-
-function calculateClusterDistance(order, route) {
-    return {
-        order,
-        distance: 0
-    }
-}
-
-function getRouteByPoints({depPoint, arrPoint}) {
-    return got("https://route.api.here.com/routing/7.2/calculateroute.json", {
-        query: {
-            app_id: APP_ID,
-            app_code: APP_CODE,
-            waypoint0: 'geo!' + _.values(depPoint).join(','),
-            waypoint1: 'geo!' + _.values(arrPoint).join(','),
-            waypoint2: 'geo!' + '53.3,40.33',
-            mode: 'fastest;car;traffic:enabled',
-        }
-    })
-    .then(res => {
-        if (res.statusCode >= 400) {
-            return null;
+        if (extraDepPoint) {
+            depPoints.push(extraDepPoint);
         }
 
-        return new RouteSummary(JSON.parse(res.body).response.route[0]);
-    })
-    .catch(e => {
-        console.log('erase');
-    })
-}
+        const result = await getRouteByPoints(depPoints);
 
+        return result;
+    }
+
+    async optimizeWholeRoute(waypoints) {
+        const depPoints = (this.state === orderStates.drive) ? [this.position] : this.members.map(m => m.waypoints.depPoint);
+
+        const arrPoints = this.members.map(m => m.waypoints.arrPoint);
+
+        if (waypoints) {
+            depPoints.push(waypoints.depPoint);
+            arrPoints.push(waypoints.arrPoint);
+        }
+
+        const points = [...depPoints, ...arrPoints];
+        return await getRouteByPoints(points);
+    }
+}
 
 class RouteSummary {
     constructor({
@@ -117,6 +183,92 @@ class RouteSummary {
         })
     }
 }
+
+async function findRelevantOrder(DB, waypoints) {
+
+    if(DB.orders.length === 0) {
+        return null;
+    }
+
+    const clusters = await Promise.all(
+        DB.orders
+        .map(order => calculateClusterDistance(order, waypoints))
+    );
+
+
+    const nearestCluster = _.sortBy(clusters, 'travelTime')[0];
+
+    if(!nearestCluster) {
+        return null;
+    }
+
+    const selfRoute = await getRouteByPoints([waypoints.depPoint, waypoints.arrPoint]);
+
+    const worsenedConditions = nearestCluster
+        .order
+        .members
+        .map(m => m.route.summary.travelTime)
+        .concat(selfRoute.travelTime)
+        .find(currentTravelTime => {
+            const clusterFee = nearestCluster.travelTime * 1.1;
+
+            const weight = (clusterFee - currentTravelTime) / clusterFee;
+
+            const resultFee = clusterFee / nearestCluster.order.members.length;
+
+            console.log(resultFee);
+            console.log(currentTravelTime);
+
+            return (resultFee > currentTravelTime);
+        });
+
+
+    if (worsenedConditions) {
+        return null;
+    }
+
+    return nearestCluster.order;
+};
+
+async function calculateClusterDistance(order, waypoints) {
+
+    const wholeDistance = await order.optimizeWholeRoute(waypoints);
+
+    return {
+        travelTime: wholeDistance.summary.travelTime,
+        waypoints,
+        order,
+    } 
+}
+
+function getRouteByPoints(points) {
+
+    const waypoints = {};
+
+    points.forEach((p, i) => {
+        waypoints['waypoint' + i] = 'geo!' + [p.lat, p.lng].join(',');
+    })
+
+    return got("https://route.api.here.com/routing/7.2/calculateroute.json", {
+        query: {
+            app_id: APP_ID,
+            app_code: APP_CODE,
+            mode: 'fastest;car;traffic:enabled',
+            ...waypoints,
+        }
+    })
+    .then(res => {
+        if (res.statusCode >= 400) {
+            return null;
+        }
+
+        return new RouteSummary(JSON.parse(res.body).response.route[0]);
+    })
+    .catch(e => {
+        console.log(e);
+    })
+}
+
 
 module.exports = {
     User,

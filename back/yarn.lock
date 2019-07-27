@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@quentinroy/polygon-centroid@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@quentinroy/polygon-centroid/-/polygon-centroid-1.0.1.tgz#436a61e2caa413b3306947985841132aabce0327"
+  integrity sha512-LGCj2Dlt3WyMdP2eQZJIDDbQGoP5rsPOFvIrzZuA5R3ShZxBpQcvxHoO5FrAftIcQcf5vMKJcRPrdKTyLxJHEA==
+
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
