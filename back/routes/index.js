@@ -3,7 +3,7 @@ var router = express.Router();
 const {
   User,
   RoomMember,
-  Order
+  Order,
   findRelevantOrder,
 } = require('../domain');
 
@@ -45,10 +45,11 @@ router.post('/me', (req, res, next) => {
   return res.send(user);
 });
 
-router.post('/order', (req, res, next) => {
+router.post('/order', async (req, res, next) => {
     const {user, route} = req.body;
 
-    const roomMember = new roomMember({
+
+    const roomMember = await RoomMember.create({
       user,
       route,
     });
