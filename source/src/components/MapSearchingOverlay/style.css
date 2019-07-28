@@ -10,12 +10,23 @@
   align-items: center;
 }
 .searchingmapoverlay > .circle {
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100px;
   height: 100px;
   border-radius: 50px;
-  background-color: #fff;
-  animation: 4s linear 0s infinite alternate move_eye;
+  background-color: rgba(255, 255, 255, 0.3);
+  animation: 4s ease-in 0s infinite alternate move_eye;
+}
+
+.searchingmapoverlay > .circle > div {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50px;
+  background-color: rgba(255, 255, 255, 0.3);
+  animation: 4s ease-in 0s infinite alternate move_eye2;
 }
 
 @keyframes move_eye {
@@ -27,6 +38,18 @@
   to {
     width: 300px;
     height: 300px;
+    border-radius: 150px;
+  }
+}
+@keyframes move_eye2 {
+  from {
+    width: 40px;
+    height: 40px;
+    border-radius: 100px;
+  }
+  to {
+    width: 134px;
+    height: 134px;
     border-radius: 150px;
   }
 }

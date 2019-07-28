@@ -52,9 +52,11 @@ const BottomBar = props => {
     setValues(newVals);
 
     const coords = { lat: suggestions[i].lat, lng: suggestions[i].lon };
-    const marker = new window.H.map.Marker(coords);
-    // props.mapComp.setArrPoint(coords);
-    props.mapComp._map.addObject(marker);
+    // const marker = new window.H.map.Marker(coords);
+    console.log(props.mapComp.setArrPoint);
+
+    props.mapComp.setArrPoint(coords);
+    // props.mapComp._map.addObject(marker);
   };
 
   return (
@@ -67,6 +69,9 @@ const BottomBar = props => {
         className="bottombarinputwrapper"
         style={{
           fontSize: '18px',
+          backgroundColor: "white",
+          // position: 'sticky',
+          // top: 0
         }}
       >
         <BulletInput
@@ -125,6 +130,7 @@ const BottomBar = props => {
         <List
           size="small"
           dataSource={suggestions}
+          // style={{ overflow: 'scroll' }}
           // onClick={handleSuggestionClick}
           renderItem={(item, i) => (
             <List.Item onClick={() => handleSuggestionClick(i)} className="suggestion">

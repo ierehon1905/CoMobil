@@ -25,7 +25,9 @@ export default class Map extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.depPoint && this.state.arrPoint && !this.state.route) {
+    console.log("Updated map");
+    
+    if (this.state.depPoint && this.state.arrPoint) {
       this._calculateRouteFromAtoB(this._platform);
     }
   }
@@ -91,6 +93,8 @@ export default class Map extends React.PureComponent {
   };
 
   setArrPoint = coords => {
+    console.log("Setting arr");
+    
     this.setState({ depPoint: coords });
   };
 
