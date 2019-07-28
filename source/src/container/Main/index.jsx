@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import {
-  Input, Button, Icon, Typography, Row, Col, Divider,
-} from 'antd';
+import { Input, Button, Icon, Typography, Row, Col, Divider } from 'antd';
 import BottomBar from '../../components/BottomBar';
-import PinPoint from '../../components/PinPoint';
+import BottomBarSearching from '../../components/BottomBarSearching';
+import BottomBarCarFound from '../../components/BottomBarCarFound';
+import BottomBarCarComing from '../../components/BottomBarCarComing';
+import BottomBarCarPickup from '../../components/BottomBarCarPickup';
+
 import Map from '../../components/Map';
 import Overlay from '../../components/MapSearchingOverlay';
 import _ from 'lodash';
@@ -12,14 +14,19 @@ import './style.css';
 
 const { Title } = Typography;
 
+const orderStates = {
+  find: 'find',
+  wait: 'wait',
+  pickup: 'pickup',
+  drive: 'drive',
+  cpmplete: 'complete',
+};
 
 class Main extends React.PureComponent {
-
   static defaultProps = {
     user: null,
     order: null,
   }
-
 
   state = {
     mapComp: {},
@@ -79,13 +86,19 @@ class Main extends React.PureComponent {
               getLink={link => this.setState({mapComp: link})}
             />
             {/* <PinPoint /> */}
+            {this.state.orderState == orderStates.wait && <Overlay />}
           </div>
-          <BottomBar
-            mapComp={this.state.mapComp}
-            setPoints={this._setPoints}
-            points={points}
-            //  setPoint={setPoint}
-          />
+          {this.state.orderState == orderStates.find && (
+            <BottomBar
+              mapComp={this.state.mapComp}
+              setPoints={this._setPoints}
+              points={points}
+            />
+          )}
+          {this.state.orderState == orderStates.wait && <BottomBarSearching />}
+          {/* <BottomBarCarPickup/> */}
+          {this.state.orderState == orderStates.pickup && <BottomBarCarPickup />}
+          {this.state.orderState == orderStates.drive && <BottomBarCarComing />}
         </div>
       </>
     );
@@ -97,9 +110,7 @@ class Main extends React.PureComponent {
   }
 }
 
-
 const Kek = () => {
-  
   // const [setPoint, setSetPoint] = useState(null);
 };
 

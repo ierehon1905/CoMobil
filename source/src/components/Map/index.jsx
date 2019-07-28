@@ -127,6 +127,8 @@ export default class Map extends React.PureComponent {
   };
 
   setArrPoint = coords => {
+    console.log("Setting arr");
+    
     this.setState({ depPoint: coords });
   };
 

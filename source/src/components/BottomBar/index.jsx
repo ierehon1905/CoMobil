@@ -10,34 +10,29 @@ const BottomBar = props => {
   const [suggestions, setSuggestions] = useState([]);
   const [values, setValues] = useState(['', '']);
 
-  const throttledGeocode = throttle(
-    text => {
-      console.log(props.mapComp);
-      if (!props.mapComp._geocoder || !text) return;
-      props.mapComp._geocoder.geocode(
-        { searchText: text },
-        r => {
-          try {
+  const throttledGeocode = throttle(text => {
+    console.log(props.mapComp);
+    if (!props.mapComp._geocoder || !text) return;
+    props.mapComp._geocoder.geocode(
+      { searchText: text },
+      r => {
+        try {
+          const suggs = r['Response']['View'][0]['Result'].map(el => ({
+            name: el['Location']['Address']['Label'],
+            lat: el['Location']['DisplayPosition']['Latitude'],
+            lon: el['Location']['DisplayPosition']['Longitude'],
+          }));
 
-            const suggs = r['Response']['View'][0]['Result'].map(el => ({
-              name: el['Location']['Address']['Label'],
-              lat: el['Location']['DisplayPosition']['Latitude'],
-              lon: el['Location']['DisplayPosition']['Longitude'],
-            }));
-
-            setSuggestions(suggs);
-          } catch {
-            setSuggestions(['К сожалению, произошол тхроттлинг']);
-          }
-        },
-        e => console.log(e),
-      );
-    },
-    200,
-  );
+          setSuggestions(suggs);
+        } catch {
+          setSuggestions(['К сожалению, произошол тхроттлинг']);
+        }
+      },
+      e => console.log(e),
+    );
+  }, 200);
 
   const handleInputChange = (text, number) => {
-
     setValues(number == 0 ? [text, values[1]] : [values[0], text]);
 
     if (text.length == 0) return;
@@ -47,15 +42,10 @@ const BottomBar = props => {
     });
   };
 
-  const handleMapClick = (position) => {
-
-  }
+  const handleMapClick = position => {};
 
   const handleSuggestionClick = i => {
-
     const newVals = Object.assign({}, values);
-  
-    newVals[inputFocused] = suggestions[i].name;
 
     setValues(newVals);
 
@@ -67,6 +57,8 @@ const BottomBar = props => {
       props.setPoints({arrPoint: coords})
     }
 
+    props.mapComp.setArrPoint(coords);
+    // props.mapComp._map.addObject(marker);
   };
 
   return (
@@ -79,6 +71,9 @@ const BottomBar = props => {
         className="bottombarinputwrapper"
         style={{
           fontSize: '18px',
+          backgroundColor: "white",
+          // position: 'sticky',
+          // top: 0
         }}
       >
         <BulletInput
@@ -137,6 +132,7 @@ const BottomBar = props => {
         <List
           size="small"
           dataSource={suggestions}
+          // style={{ overflow: 'scroll' }}
           // onClick={handleSuggestionClick}
           renderItem={(item, i) => (
             <List.Item onClick={() => handleSuggestionClick(i)} className="suggestion">

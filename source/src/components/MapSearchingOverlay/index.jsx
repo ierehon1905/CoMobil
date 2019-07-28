@@ -3,7 +3,9 @@ import './style.css';
 
 const Overlay = () => (
   <div className="searchingmapoverlay">
-    <div className="circle" />
+    <div className="circle">
+      <div />
+    </div>
   </div>
 );
 
