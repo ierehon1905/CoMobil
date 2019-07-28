@@ -52,10 +52,14 @@ const BottomBar = props => {
     setValues(newVals);
 
     const coords = { lat: suggestions[i].lat, lng: suggestions[i].lon };
-    // const marker = new window.H.map.Marker(coords);
-    console.log(props.mapComp.setArrPoint);
 
-    props.mapComp.setArrPoint(coords);
+    if (inputFocused === 0) {
+      props.setPoints({depPoint: coords})
+    } else if (inputFocused === 1) {
+      props.setPoints({arrPoint: coords})
+    }
+
+    // props.mapComp.setArrPoint(coords);
     // props.mapComp._map.addObject(marker);
   };
 

@@ -71,6 +71,8 @@ router.post('/order', async (req, res, next) => {
     const {user} = req;
     const {route, slot} = req.body;
 
+    console.log(req.body);
+
     const roomMember = await RoomMember.create({
       user,
       slot,
@@ -78,7 +80,6 @@ router.post('/order', async (req, res, next) => {
     });
 
     const relevantOrder = await findRelevantOrder(DB, roomMember);
-
 
     if (!relevantOrder) {
       const newOrder = new Order();
@@ -119,6 +120,7 @@ router.post('/order/status', (req, res, next) => {
   const {user} = req;
   const {orderId} = req.body;
 
+  console.log(user);
 
   if (!user && !orderId) {
     res.status(404).send()
@@ -136,6 +138,8 @@ router.post('/order/status', (req, res, next) => {
   }
 
   const order = DB.orders.find(o => o.members.find(m => m.user.id === user.id));
+
+  console.log(DB.orders)
 
   if(!order) {
     return res.status(404).send();

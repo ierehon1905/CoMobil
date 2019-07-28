@@ -1,7 +1,14 @@
 
 
 export default function request(path, body) {
-  return fetch(`http://localhost:4000${path}`, { body, method: 'post', credentials: 'include' }).then((res) => { // eslint-disable-line
+  return fetch(`http://localhost:4000${path}`, {
+    body: JSON.stringify(body),
+    method: 'post',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    }).then((res) => { // eslint-disable-line
     if (res.ok) {
       return res.json().catch(e => res.statusText);
     }
