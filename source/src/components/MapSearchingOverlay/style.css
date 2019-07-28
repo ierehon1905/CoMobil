@@ -1,0 +1,32 @@
+.searchingmapoverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.searchingmapoverlay > .circle {
+  display: inline-block;
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  background-color: #fff;
+  animation: 4s linear 0s infinite alternate move_eye;
+}
+
+@keyframes move_eye {
+  from {
+    width: 134px;
+    height: 134px;
+    border-radius: 100px;
+  }
+  to {
+    width: 300px;
+    height: 300px;
+    border-radius: 150px;
+  }
+}

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import {
   Input, Button, Icon, Typography, Row, Col, Divider,
 } from 'antd';
-import BottomBar from '../../components/BottomBar';
+import BottomBar from '../../components/BottomBarCarComing';
 import PinPoint from '../../components/PinPoint';
 import Map from '../../components/Map';
+import Overlay from '../../components/MapSearchingOverlay';
 import './style.css';
 
 const { Title } = Typography;
@@ -16,26 +17,24 @@ const Kek = () => {
 
   return (
     <>
-      <Row
+      <div
         style={{
           position: 'absolute',
+          display: 'flex',
+          justifyContent: 'space-between',
           zIndex: 2,
           left: 0,
           right: 0,
           top: 0,
+          padding: '10px',
         }}
       >
-        <Col span={6}>
-          <Icon type="bars" />
-        </Col>
-        <Col span={12}>
-          <Title>КАРэта</Title>
-        </Col>
-        {/* <Button type="default">|||</Button> */}
-        <Col span={6}>
-          <Icon type="user" />
-        </Col>
-      </Row>
+        <Icon type="bars" style={{ fontSize: '50px' }} />
+
+        <Title style={{ marginTop: '10px' }}>CARэта</Title>
+
+        <Icon type="user" style={{ fontSize: '50px' }} />
+      </div>
       <div
         style={{
           display: 'flex',
@@ -51,6 +50,7 @@ const Kek = () => {
             //  onSetPointReady={setSetPoint}
           />
           {/* <PinPoint /> */}
+          {/* <Overlay /> */}
         </div>
         <BottomBar
           geocoder={geocoder}
