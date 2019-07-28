@@ -3,10 +3,16 @@ import './styles.css';
 
 export default class Map extends React.PureComponent {
   componentDidMount() {
-    this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-core.js');
-    this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-service.js');
-    this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-mapevents.js');
-    this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-ui.js');
+
+    if (!this._map) {
+      this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-core.js');
+      this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-service.js');
+      this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-mapevents.js');
+      this._makeScript('https://js.api.here.com/v3/3.1/mapsjs-ui.js');
+    }
+
+    this.props.getLink(this);
+
   }
 
   constructor(props) {
@@ -44,16 +50,21 @@ export default class Map extends React.PureComponent {
     });
 
     if ('geolocation' in {}) {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          console.log(position);
-          const { latitude: lat, longitude: lng } = position.coords;
-          this._initMap(H, this._platform, { lat, lng });
-        },
-        e => console.log(e),
-      );
+      // navigator.geolocation.getCurrentPosition(
+      //   position => {
+      //     console.log(position);
+      //     const { latitude: lat, longitude: lng } = position.coords;
+      //     this._initMap(H, this._platform, { lat, lng });
+      //   },
+      //   e => console.log(e),
+      //   {
+      //     enableHighAccuracy: true,
+      //     timeout: 10000,
+      //     maximumAge: Infinity,
+      //   }
+      // );
     } else {
-      this._initMap(H, this._platform, { lat: 50, lng: 50 });
+      this._initMap(H, this._platform, { lat: 55.7408, lng:  37.6089 });
     }
   };
 
@@ -61,13 +72,17 @@ export default class Map extends React.PureComponent {
     const coord = this._map.screenToGeo(evt.clientX, evt.clientY);
 
     if (!this.state.depPoint) {
+  
       this.setState({ depPoint: coord });
       const marker = new window.H.map.Marker(coord);
       this._map.addObject(marker);
+
     } else if (!this.state.arrPoint) {
+    
       this.setState({ arrPoint: coord });
       const marker = new window.H.map.Marker(coord);
       this._map.addObject(marker);
+  
     }
   };
 
@@ -102,8 +117,6 @@ export default class Map extends React.PureComponent {
     try {
       const defaultLayers = platform.createDefaultLayers();
 
-      const geocoder = this._platform.getGeocodingService();
-      this.props.onGeocoderReady(geocoder);
 
       this._map = new window.H.Map( // eslint-disable-line
         document.getElementById('mapContainer'), // eslint-disable-line
@@ -114,14 +127,16 @@ export default class Map extends React.PureComponent {
           pixelRatio: window.devicePixelRatio || 1,
         },
       );
-      this.props.onMapReady(this._map);
-      // console.log(this.props);
-      
-      // this.props.onSetPointReady(this.setPoint)
+
+      console.log(this._map);
 
       this._behavior = new window.H.mapevents.Behavior(new window.H.mapevents.MapEvents(this._map));
 
       this._ui = H.ui.UI.createDefault(this._map, defaultLayers);
+
+
+      this._geocoder = this._platform.getGeocodingService();
+
     } catch (e) {
       console.log(e);
     }

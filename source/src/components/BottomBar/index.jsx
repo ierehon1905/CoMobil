@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, PureComponent } from 'react';
 import { Divider, Switch, Icon, Button, List } from 'antd';
 import { throttle } from 'lodash';
 import BulletInput from '../BulletInput';
@@ -12,18 +12,19 @@ const BottomBar = props => {
 
   const throttledGeocode = throttle(
     text => {
-      if (!props.geocoder || !text) return;
-      props.geocoder.geocode(
+      console.log(props.mapComp);
+      if (!props.mapComp._geocoder || !text) return;
+      props.mapComp._geocoder.geocode(
         { searchText: text },
         r => {
           try {
-            console.log(r);
 
             const suggs = r['Response']['View'][0]['Result'].map(el => ({
               name: el['Location']['Address']['Label'],
               lat: el['Location']['DisplayPosition']['Latitude'],
               lon: el['Location']['DisplayPosition']['Longitude'],
             }));
+
             setSuggestions(suggs);
           } catch {
             setSuggestions(['К сожалению, произошол тхроттлинг']);
@@ -37,8 +38,6 @@ const BottomBar = props => {
   );
 
   const handleInputChange = (text, number) => {
-    console.log(text);
-    console.log(number);
 
     setValues(number == 0 ? [text, values[1]] : [values[0], text]);
 
@@ -49,17 +48,23 @@ const BottomBar = props => {
     });
   };
 
+  const handleMapClick = (position) => {
+
+  }
+
   const handleSuggestionClick = i => {
+  
     const newVals = values;
+
+  
     newVals[inputFocused] = suggestions[i].name;
+
     setValues(newVals);
     const coords = { lat: suggestions[i].lat, lng: suggestions[i].lon };
     const marker = new window.H.map.Marker(coords);
-    props.map._map.addObject(marker);
-    // props.setPoint({ type: inputFocused == 0 ? 'depPoint' : 'arrPoint', coords });
-    console.log('hhello');
+  
+    props.mapComp._map.addObject(marker);
 
-    // props.map.(suggestions[i].lat, suggestions[i].lat);
   };
 
   return (

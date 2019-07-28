@@ -19,6 +19,21 @@ function resetDB() {
   }
 }
 
+router.use((req, res, next) => {
+  const {uid} = req.cookies;
+
+  if(!uid) {
+    return next();
+  }
+
+  const user = DB.users.find(u => u.id === uid);
+  req.user = user;
+
+  console.log(req.user);
+
+  return next();
+})
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
@@ -29,11 +44,16 @@ router.post('/reset', (req, res, next) => {
   res.send();
 })
 
-router.get('/ping', (req, res) => {
-  res.send('kek')
+router.post('/ping', (req, res) => {
+  res.send('kek');
 })
 
 router.post('/me', (req, res, next) => {
+
+  if (req.user) {
+   return res.send(req.user);
+  }
+
   const user = DB.users.find(u => !u.isUsed);
 
   if(!user) {
@@ -42,11 +62,14 @@ router.post('/me', (req, res, next) => {
 
   user.setUsed();
 
+  res.cookie('uid', user.id, { maxAge: 900000, httpOnly: false });
+
   return res.send(user);
 });
 
 router.post('/order', async (req, res, next) => {
-    const {user, route, slot} = req.body;
+    const {user} = req;
+    const {route, slot} = req.body;
 
     const roomMember = await RoomMember.create({
       user,
@@ -75,7 +98,10 @@ router.post('/order', async (req, res, next) => {
 });
 
 router.post('/order/vote/', async (req, res, next) => {
-  const {orderId, userId} = req.body;
+  const {user} = req;
+  const userId = user.id;
+
+  const {orderId} = req.body;
 
   const order = DB.orders.find(o => o.id === orderId);
 
@@ -90,15 +116,34 @@ router.post('/order/vote/', async (req, res, next) => {
 })
 
 router.post('/order/status', (req, res, next) => {
+  const {user} = req;
   const {orderId} = req.body;
-  
-  const order = DB.orders.find(o => o.id === orderId);
+
+
+  if (!user && !orderId) {
+    res.status(404).send()
+  }
+
+  if (orderId) {
+        const order = DB.orders.find(o => o.id === orderId);
+
+        if(!order) {
+          return res.status(404).send();
+        }
+
+
+        return res.send({order})
+  }
+
+  const order = DB.orders.find(o => o.members.find(m => m.user.id === user.id));
 
   if(!order) {
     return res.status(404).send();
   }
 
+
   return res.send({order})
+  
 });
 
 

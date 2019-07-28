@@ -7,3 +7,11 @@
     width: 100%;
     height: 100%;
 }
+
+.H_l_bottom.H_l_right {
+    display: none;
+}
+
+.H_copyright {
+    display: none;
+}
