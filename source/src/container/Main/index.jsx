@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Input, Button, Icon, Typography, Row, Col, Divider,
 } from 'antd';
-import BottomBar from '../../components/BottomBarCarComing';
+import BottomBar from '../../components/BottomBar';
 import PinPoint from '../../components/PinPoint';
 import Map from '../../components/Map';
 import Overlay from '../../components/MapSearchingOverlay';
