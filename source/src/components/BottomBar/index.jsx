@@ -53,8 +53,8 @@ const BottomBar = props => {
   }
 
   const handleSuggestionClick = i => {
+  console.log("Hello");
   
-    const newVals = values;
 
   
     newVals[inputFocused] = suggestions[i].name;
