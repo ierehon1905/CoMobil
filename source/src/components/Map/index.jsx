@@ -167,7 +167,7 @@ export default class Map extends React.PureComponent {
         },
       );
 
-      console.log(this._map);
+      // console.log(this._map);
 
       this._behavior = new window.H.mapevents.Behavior(new window.H.mapevents.MapEvents(this._map));
 

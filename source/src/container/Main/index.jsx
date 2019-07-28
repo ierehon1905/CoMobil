@@ -25,28 +25,24 @@ const orderStates = {
 class Main extends React.PureComponent {
   static defaultProps = {
     user: null,
-    order:  null,
-  }
+    order: null,
+  };
 
   state = {
     mapComp: {},
-    points: {arrPoint: null, depPoint: null},
-    orderState: this.props.orderState || 'find'
-  }
+    points: { arrPoint: null, depPoint: null },
+    orderState: this.props.orderState || 'find',
+  };
 
   componentDidUpdate(prevProps, prevState) {
-    if(
-      (this.state.points.arrPoint && this.state.points.depPoint)
-      && !this.props.order
-      ) {
-        request('/order', {route: this.state.points, slot: 1});
-      }
+    if (this.state.points.arrPoint && this.state.points.depPoint && !this.props.order) {
+      request('/order', { route: this.state.points, slot: 1 });
+    }
   }
 
   render() {
-
-    const {user} = this.props;
-    const {points} = this.state;
+    const { user } = this.props;
+    const { points } = this.state;
 
     return (
       <>
@@ -84,15 +80,18 @@ class Main extends React.PureComponent {
               // onMapReady={(map) => this.setState({map})}
               setPoints={this._setPoints}
               points={points}
-              getLink={link => this.setState({mapComp: link})}
+              getLink={link => this.setState({ mapComp: link })}
             />
             {/* <PinPoint /> */}
             {this.props.orderState == orderStates.find && <Overlay />}
           </div>
 
-          {!this.props.orderState && <BottomBar mapComp={this.state.mapComp} 
-          // setPoint={setPoint}
-           />}
+          {!this.props.orderState && (
+            <BottomBar
+              mapComp={this.state.mapComp}
+              // setPoint={setPoint}
+            />
+          )}
 
           {this.props.orderState == orderStates.find && (
             <BottomBarSearching
@@ -101,6 +100,7 @@ class Main extends React.PureComponent {
             />
           )}
           {this.props.orderState == orderStates.wait && <BottomBarCarComing />}
+
           {/* <BottomBarCarPickup/> */}
           {this.props.orderState == orderStates.pickup && <BottomBarCarPickup />}
           {this.props.orderState == orderStates.drive && <BottomBarCarDrive />}
@@ -109,10 +109,10 @@ class Main extends React.PureComponent {
     );
   }
 
-  _setPoints = (points) => {
+  _setPoints = points => {
     const newPoints = Object.assign({}, this.state.points, points);
-    this.setState({points: newPoints})
-  }
+    this.setState({ points: newPoints });
+  };
 }
 
 const Kek = () => {
