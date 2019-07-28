@@ -5,7 +5,7 @@ import BottomBarSearching from '../../components/BottomBarSearching';
 import BottomBarCarFound from '../../components/BottomBarCarFound';
 import BottomBarCarComing from '../../components/BottomBarCarComing';
 import BottomBarCarPickup from '../../components/BottomBarCarPickup';
-
+import BottomBarCarDrive from '../../components/BottomBarCarDrive';
 import Map from '../../components/Map';
 import Overlay from '../../components/MapSearchingOverlay';
 import './style.css';
@@ -27,7 +27,7 @@ class Main extends React.PureComponent {
 
   state = {
     mapComp: {},
-    orderState: orderStates.find,
+    orderState: this.props.orderState,
   };
 
   render() {
@@ -71,18 +71,22 @@ class Main extends React.PureComponent {
               getLink={link => this.setState({ mapComp: link })}
             />
             {/* <PinPoint /> */}
-            {this.state.orderState == orderStates.wait && <Overlay />}
+            {this.props.orderState == orderStates.find && <Overlay />}
           </div>
-          {this.state.orderState == orderStates.find && (
-            <BottomBar
-              mapComp={this.state.mapComp}
-              //  setPoint={setPoint}
+          {!this.props.orderState && <BottomBar mapComp={this.state.mapComp} 
+          // setPoint={setPoint}
+           />}
+
+          {this.props.orderState == orderStates.find && (
+            <BottomBarSearching
+            // mapComp={this.state.mapComp}
+            // //  setPoint={setPoint}
             />
           )}
-          {this.state.orderState == orderStates.wait && <BottomBarSearching />}
+          {this.props.orderState == orderStates.wait && <BottomBarCarComing />}
           {/* <BottomBarCarPickup/> */}
-          {this.state.orderState == orderStates.pickup && <BottomBarCarPickup />}
-          {this.state.orderState == orderStates.drive && <BottomBarCarComing />}
+          {this.props.orderState == orderStates.pickup && <BottomBarCarPickup />}
+          {this.props.orderState == orderStates.drive && <BottomBarCarDrive />}
         </div>
       </>
     );
