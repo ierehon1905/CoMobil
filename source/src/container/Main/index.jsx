@@ -90,9 +90,12 @@ class Main extends React.PureComponent {
             {this.props.orderState == orderStates.find && <Overlay />}
           </div>
 
-          {!this.props.orderState && <BottomBar mapComp={this.state.mapComp} 
-          // setPoint={setPoint}
-           />}
+          {!this.props.orderState && 
+          <BottomBar 
+            mapComp={this.state.mapComp} 
+            setPoints={this._setPoints}
+           />
+           }
 
           {this.props.orderState == orderStates.find && (
             <BottomBarSearching
