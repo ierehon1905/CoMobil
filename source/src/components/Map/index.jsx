@@ -122,21 +122,21 @@ export default class Map extends React.PureComponent {
     }
   };
 
-  setDepPoint = coords => {
-    this.setState({ depPoint: coords });
-  };
+  // setDepPoint = coords => {
+  //   this.setState({ depPoint: coords });
+  // };
 
-  setArrPoint = coords => {
-    console.log("Setting arr");
+  // setArrPoint = coords => {
+  //   console.log("Setting arr");
     
-    this.setState({ depPoint: coords });
-  };
+  //   this.setState({ depPoint: coords });
+  // };
 
-  setPoint = ({ type, coords }) => {
-    if (type == 'arrPoint') this.setArrPoint(coords);
-    else if (type == 'depPoint') this.setDepPoint(coords);
-    else throw new Error('SOSI');
-  };
+  // setPoint = ({ type, coords }) => {
+  //   if (type == 'arrPoint') this.setArrPoint(coords);
+  //   else if (type == 'depPoint') this.setDepPoint(coords);
+  //   else throw new Error('SOSI');
+  // };
 
   _onRouteSuccess = result => {
     this.setState({ route: result });

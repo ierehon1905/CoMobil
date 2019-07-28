@@ -30,7 +30,8 @@ class Main extends React.PureComponent {
 
   state = {
     mapComp: {},
-    points: {arrPoint: null, depPoint: null}
+    points: {arrPoint: null, depPoint: null},
+    orderState: 'find'
   }
 
   componentDidUpdate(prevProps, prevState) {

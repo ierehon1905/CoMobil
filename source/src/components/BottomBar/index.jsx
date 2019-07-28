@@ -47,6 +47,8 @@ const BottomBar = props => {
   const handleSuggestionClick = i => {
     const newVals = Object.assign({}, values);
 
+    newVals[inputFocused] = suggestions[i].name;
+
     setValues(newVals);
 
     const coords = { lat: suggestions[i].lat, lng: suggestions[i].lon };
@@ -57,7 +59,7 @@ const BottomBar = props => {
       props.setPoints({arrPoint: coords})
     }
 
-    props.mapComp.setArrPoint(coords);
+    // props.mapComp.setArrPoint(coords);
     // props.mapComp._map.addObject(marker);
   };
 
