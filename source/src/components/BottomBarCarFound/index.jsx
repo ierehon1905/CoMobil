@@ -1,10 +1,22 @@
 import React from 'react';
 import { Button, Typography } from 'antd';
 import Car from '../CarScheme';
+import request from '../../request';
 
 import '../BottomBar/style.css';
 
 const { Text } = Typography;
+
+const handleForward = (id) => {
+  request('/order/setState', { state: 'drive', orderId: id }).then((res) => {
+    if (res.order) {
+      // this.setState(res.order);
+      console.log('не Xуйня');
+    } else {
+      console.log('Xуйня');
+    }
+  });
+};
 
 const Searching = props => (
   <div
@@ -33,8 +45,12 @@ const Searching = props => (
       shape="round"
       size="large"
       style={{
-        margin: 20, marginBottom: 40, backgroundColor: '#EF7930', color: 'white',
+        margin: 20,
+        marginBottom: 40,
+        backgroundColor: '#EF7930',
+        color: 'white',
       }}
+      onClick={() => handleForward(props.order.orderId)}
     >
       Не ждать за 219 ₽
     </Button>

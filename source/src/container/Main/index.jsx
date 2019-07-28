@@ -31,18 +31,39 @@ class Main extends React.PureComponent {
   state = {
     mapComp: {},
     points: { arrPoint: null, depPoint: null },
-    orderState: this.props.orderState || 'find',
+    orderState: this.props.order ? this.props.order.state : 'find',
   };
 
   componentDidUpdate(prevProps, prevState) {
+    if (!this.props.order) return;
     if (this.state.points.arrPoint && this.state.points.depPoint && !this.props.order) {
-      request('/order', { route: this.state.points, slot: 1 });
+      // request('/order', { route: this.state.points, slot: 1 });
     }
   }
+
+  handleSearch = () => {
+    console.log('points', this.state.points);
+    // if (!this.props.order) return;
+
+    request('/order', { slot: 1, route: this.state.points })
+      .then(res => {
+        console.log('got', res);
+        this.props.handleSearch(res);
+        if (res.order) {
+          // this.setState(res.order);
+        } else {
+          console.log('Xуйня');
+        }
+      })
+      .catch(err => console.log('nothing'));
+  };
 
   render() {
     const { user } = this.props;
     const { points } = this.state;
+
+    const order = this.props.order || { state: '' };
+  console.log('order', order);
 
     return (
       <>
@@ -83,27 +104,30 @@ class Main extends React.PureComponent {
               getLink={link => this.setState({ mapComp: link })}
             />
             {/* <PinPoint /> */}
-            {this.props.orderState == orderStates.find && <Overlay />}
+            {order.state == orderStates.find && <Overlay />}
           </div>
 
-          {!this.props.orderState && 
-          <BottomBar 
-            mapComp={this.state.mapComp} 
-            setPoints={this._setPoints}
-           />
-           }
-
-          {this.props.orderState == orderStates.find && (
-            <BottomBarSearching
-            // mapComp={this.state.mapComp}
-            // //  setPoint={setPoint}
+          {!order.state && (
+            <BottomBar
+              mapComp={this.state.mapComp}
+              setPoints={this._setPoints}
+              handleSearch={this.handleSearch}
             />
           )}
-          {this.props.orderState == orderStates.wait && <BottomBarCarComing />}
+
+          {order.state == orderStates.find && (
+            <BottomBarSearching
+              // mapComp={this.state.mapComp}
+              // setPoint={setPoint}
+              order={order}
+            />
+          )}
+          
+          {order.state == orderStates.wait && <BottomBarCarComing order={order} />}
 
           {/* <BottomBarCarPickup/> */}
-          {this.props.orderState == orderStates.pickup && <BottomBarCarPickup />}
-          {this.props.orderState == orderStates.drive && <BottomBarCarDrive />}
+          {order.state == orderStates.pickup && <BottomBarCarPickup order={order} />}
+          {order.state == orderStates.drive && <BottomBarCarDrive order={order} />}
         </div>
       </>
     );

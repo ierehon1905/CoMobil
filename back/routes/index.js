@@ -57,7 +57,8 @@ router.post('/me', (req, res, next) => {
   const user = DB.users.find(u => !u.isUsed);
 
   if(!user) {
-    return res.send(null);
+    user = new User({login: "heui"})
+    DB.users.push(user)
   }
 
   user.setUsed();
@@ -86,15 +87,15 @@ router.post('/order', async (req, res, next) => {
       await newOrder.addMember(roomMember);
       DB.orders.push(newOrder);
 
-      return res.send({order: newOrder});
+      return res.json({order: newOrder});
 
     } else if (relevantOrder.state === 'drive') {
       await relevantOrder.addCandidate(roomMember);
-
+      // return res.json({order: relevantOrder});
     } else {
       await relevantOrder.addMember(roomMember);
 
-      return res.send({order: relevantOrder});
+      return res.json({order: relevantOrder});
     }
 });
 
@@ -120,7 +121,7 @@ router.post('/order/status', (req, res, next) => {
   const {user} = req;
   const {orderId} = req.body;
 
-  console.log(user);
+  console.log(user, orderId);
 
   if (!user && !orderId) {
     res.status(404).send()

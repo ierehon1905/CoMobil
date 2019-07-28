@@ -35,12 +35,19 @@ const BottomBar = props => {
   const handleInputChange = (text, number) => {
     setValues(number == 0 ? [text, values[1]] : [values[0], text]);
 
-    if (text.length == 0) return;
+    if (text.length == 0) {
+      setSuggestions([]);
+      return;
+    }
     new Promise(resolve => {
       throttledGeocode(text);
       resolve();
     });
   };
+
+  const handleFind = () => {
+    props.handleSearch()
+  }
 
   const handleMapClick = position => {};
 
@@ -54,10 +61,12 @@ const BottomBar = props => {
     const coords = { lat: suggestions[i].lat, lng: suggestions[i].lon };
 
     if (inputFocused === 0) {
-      props.setPoints({depPoint: coords})
+      props.setPoints({ depPoint: coords });
     } else if (inputFocused === 1) {
-      props.setPoints({arrPoint: coords})
+      props.setPoints({ arrPoint: coords });
     }
+
+    setInputFocused(-1);
 
     // props.mapComp.setArrPoint(coords);
     // props.mapComp._map.addObject(marker);
@@ -73,7 +82,7 @@ const BottomBar = props => {
         className="bottombarinputwrapper"
         style={{
           fontSize: '18px',
-          backgroundColor: "white",
+          backgroundColor: 'white',
           // position: 'sticky',
           // top: 0
         }}
@@ -123,6 +132,7 @@ const BottomBar = props => {
           block
           shape="round"
           style={{ backgroundColor: '#EF7930', fontSize: 20, height: 48 }}
+          onClick={handleFind}
         >
           Заказать
         </Button>
