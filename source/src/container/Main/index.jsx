@@ -25,13 +25,13 @@ const orderStates = {
 class Main extends React.PureComponent {
   static defaultProps = {
     user: null,
-    order: this.props.orderState || null,
+    order:  null,
   }
 
   state = {
     mapComp: {},
     points: {arrPoint: null, depPoint: null},
-    orderState: 'find'
+    orderState: this.props.orderState || 'find'
   }
 
   componentDidUpdate(prevProps, prevState) {
