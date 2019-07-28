@@ -6,6 +6,8 @@ import BottomBar from '../../components/BottomBar';
 import PinPoint from '../../components/PinPoint';
 import Map from '../../components/Map';
 import Overlay from '../../components/MapSearchingOverlay';
+import _ from 'lodash';
+import request from '../../request';
 import './style.css';
 
 const { Title } = Typography;
@@ -15,17 +17,28 @@ class Main extends React.PureComponent {
 
   static defaultProps = {
     user: null,
+    order: null,
   }
 
 
   state = {
     mapComp: {},
+    points: {arrPoint: null, depPoint: null}
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if(
+      (this.state.points.arrPoint && this.state.points.depPoint)
+      && !this.props.order
+      ) {
+        request('/order', {route: this.state.points, slot: 1});
+      }
   }
 
   render() {
 
     const {user} = this.props;
-    const {geocoder, map} = this.state;
+    const {points} = this.state;
 
     return (
       <>
@@ -61,17 +74,26 @@ class Main extends React.PureComponent {
             <Map
               // onGeocoderReady={(geocoder) => this.setState({geocoder})}
               // onMapReady={(map) => this.setState({map})}
+              setPoints={this._setPoints}
+              points={points}
               getLink={link => this.setState({mapComp: link})}
             />
             {/* <PinPoint /> */}
           </div>
           <BottomBar
             mapComp={this.state.mapComp}
+            setPoints={this._setPoints}
+            points={points}
             //  setPoint={setPoint}
           />
         </div>
       </>
     );
+  }
+
+  _setPoints = (points) => {
+    const newPoints = Object.assign({}, this.state.points, points);
+    this.setState({points: newPoints})
   }
 }
 

@@ -12,7 +12,6 @@ export default class Map extends React.PureComponent {
     }
 
     this.props.getLink(this);
-
   }
 
   constructor(props) {
@@ -20,14 +19,59 @@ export default class Map extends React.PureComponent {
     this.state = {
       depPoint: null,
       arrPoint: null,
+      depMarker: null,
+      arrMarker: null,
       route: null,
     };
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.depPoint && this.state.arrPoint && !this.state.route) {
-      this._calculateRouteFromAtoB(this._platform);
+
+    console.log(this.props.points);
+
+    if (
+      (this.props.points.arrPoint && this.props.points.depPoint) 
+       && ((this.props.points.arrPoint !== prevProps.points.arrPoint)
+       || (this.props.points.depPoint !== prevProps.points.depPoint))
+      ) {
+      this._calculateRouteFromAtoB();
     }
+
+
+
+    if(this.props.depPoint !== prevProps.points.depPoint) {
+
+      if(this.props.points.depPoint && !this._depMarker) {
+        const marker = new window.H.map.Marker(this.props.points.depPoint);
+        this._map.addObject(marker);
+        this._depMarker = marker;
+      }
+
+      // if (!this.props.points.depPoint && this.state.depMarker) {
+      //   this._map.removeObject(this.state.depMarker);
+      //   this.setState({depMarker: null});
+      // }
+
+    }
+  
+
+    if(this.props.arrPoint !== prevProps.points.arrPoint) {
+
+      if(this.props.points.arrPoint && !this._arrMarker) {
+        const marker = new window.H.map.Marker(this.props.points.arrPoint);
+        this._map.addObject(marker);
+        this._arrMarker = marker;
+      }
+
+      // if (!this.props.points.arrPoint && this.state.arrMarker) {
+      //   this._map.removeObject(this.state.depMarker);
+      //   this.setState({arrMarker: null});
+      // }
+
+    }
+
+
+
   }
 
   render() {
@@ -71,18 +115,10 @@ export default class Map extends React.PureComponent {
   _onMapClick = evt => {
     const coord = this._map.screenToGeo(evt.clientX, evt.clientY);
 
-    if (!this.state.depPoint) {
-  
-      this.setState({ depPoint: coord });
-      const marker = new window.H.map.Marker(coord);
-      this._map.addObject(marker);
-
-    } else if (!this.state.arrPoint) {
-    
-      this.setState({ arrPoint: coord });
-      const marker = new window.H.map.Marker(coord);
-      this._map.addObject(marker);
-  
+    if (!this.props.points.depPoint) {
+      this.props.setPoints({ depPoint: coord });
+    } else if (!this.props.points.arrPoint) {
+      this.props.setPoints({ arrPoint: coord });
     }
   };
 
@@ -110,6 +146,7 @@ export default class Map extends React.PureComponent {
   };
 
   _onRouteError = e => {
+    console.log(e);
     alert('Бл');
   };
 
@@ -158,15 +195,17 @@ export default class Map extends React.PureComponent {
     geocoder.geocode({ searchText }, r => console.log(r), e => console.log(e));
   };
 
-  _calculateRouteFromAtoB(platform) {
-    var router = platform.getRoutingService(),
+  _calculateRouteFromAtoB() {
+
+    console.log('build route');
+    var router = this._platform.getRoutingService(),
       routeRequestParams = {
         mode: 'fastest;car',
         representation: 'display',
         routeattributes: 'waypoints,summary,shape,legs',
         maneuverattributes: 'direction,action',
-        waypoint0: Object.values(this.state.depPoint).join(','), // Brandenburg Gate
-        waypoint1: Object.values(this.state.arrPoint).join(','), // Friedrichstraße Railway Station
+        waypoint0: Object.values(this.props.points.depPoint).join(','), // Brandenburg Gate
+        waypoint1: Object.values(this.props.points.arrPoint).join(','), // Friedrichstraße Railway Station
       };
 
     router.calculateRoute(routeRequestParams, this._onRouteSuccess, this._onRouteError);

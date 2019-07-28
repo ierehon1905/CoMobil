@@ -9,9 +9,10 @@ const APP_CODE = "mwdDoGQLxIxxJqVRjxpg4A";
 class User {
     constructor({
         login,
+        id
     }) {
         Object.assign(this, {
-            id: nanoid(),
+            id: id || nanoid(),
             login,
             isUsed: false,
         })

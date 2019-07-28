@@ -53,18 +53,19 @@ const BottomBar = props => {
 
   const handleSuggestionClick = i => {
 
-  
     const newVals = Object.assign({}, values);
   
     newVals[inputFocused] = suggestions[i].name;
 
-
     setValues(newVals);
 
     const coords = { lat: suggestions[i].lat, lng: suggestions[i].lon };
-    const marker = new window.H.map.Marker(coords);
-  
-    props.mapComp._map.addObject(marker);
+
+    if (inputFocused === 0) {
+      props.setPoints({depPoint: coords})
+    } else if (inputFocused === 1) {
+      props.setPoints({arrPoint: coords})
+    }
 
   };
 
