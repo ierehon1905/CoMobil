@@ -34,7 +34,6 @@ const BottomBar = props => {
       );
     },
     200,
-    { trailing: true },
   );
 
   const handleInputChange = (text, number) => {
@@ -53,13 +52,15 @@ const BottomBar = props => {
   }
 
   const handleSuggestionClick = i => {
-  console.log("Hello");
-  
 
+  
+    const newVals = Object.assign({}, values);
   
     newVals[inputFocused] = suggestions[i].name;
 
+
     setValues(newVals);
+
     const coords = { lat: suggestions[i].lat, lng: suggestions[i].lon };
     const marker = new window.H.map.Marker(coords);
   
